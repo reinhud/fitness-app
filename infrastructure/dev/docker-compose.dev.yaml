@@ -1,0 +1,88 @@
+version: '3'
+
+services:
+
+  frontend-dev:
+      container_name: fitness-app-frontend-dev
+      build:
+        context: ./../../services/frontend
+        dockerfile: Dockerfile
+        target: dev
+      restart: always
+      
+      # Overrides default command so things don't shut down after the process ends.
+      command: /bin/sh -c "while sleep 1000; do :; done"
+      volumes:
+        - ../../.:/workspace:cached
+      env_file:
+        - ./../../infrastructure/dev/.env
+      ports:
+        - "${FRONTEND_HOST_PORT}:${FRONTEND_CONTAINER_PORT}"
+      expose:
+        - ${FRONTEND_CONTAINER_PORT}
+
+  backend-dev:
+    container_name: fitness-app-backend-dev
+    build:
+      context: ./../../services/backend
+      dockerfile: Dockerfile
+      target: dev 
+    restart: always
+    # Overrides default command so things don't shut down after the process ends.
+    command: /bin/sh -c "while sleep 1000; do :; done"
+    volumes:
+      - ../../.:/workspace:cached
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST_URL=${POSTGRES_HOST_URL}
+      - DATABASE_HOST_PORT=${DATABASE_HOST_PORT}
+      - BACKEND_HOST_PORT=${BACKEND_HOST_PORT}
+      - FRONTEND_HOST_PORT=${FRONTEND_HOST_PORT}
+      - FRONTEND_HOST_URL=${FRONTEND_HOST_URL}
+      - JWT_ALGORITHM=${JWT_ALGORITHM}
+      - JWT_ACCESS_KEY=${JWT_ACCESS_KEY}
+      - ACCESS_KEY_EXPIRES_MINUTES=${ACCESS_KEY_EXPIRES_MINUTES}
+      - JWT_RESET_KEY=${JWT_RESET_KEY}
+      - RESET_KEY_EXPIRES_MINUTES=${RESET_KEY_EXPIRES_MINUTES}
+      
+      - SMTP_SERVER=${SMTP_SERVER}
+      - SMTP_PORT=${SMTP_PORT}
+      - SMTP_USERNAME=${SMTP_USERNAME}
+      - SMTP_PASSWORD=${SMTP_PASSWORD}
+    ports:
+      - "${BACKEND_HOST_PORT}:${BACKEND_CONTAINER_PORT}"
+
+
+  db-dev:
+    container_name: fitness-app-postgres-dev
+    image: postgres:14
+    # set shared memory limit when using docker-compose
+    shm_size: 128mb
+    volumes: 
+      - /var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_HOST_URL=${POSTGRES_HOST_URL}
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    restart: always
+    ports:
+      - "${DATABASE_HOST_PORT}:${DATABASE_CONTAINER_PORT}" 
+
+  pgadmin-dev:
+    container_name: fitness-app-pgadmin-dev
+    image: dpage/pgadmin4
+    restart: always
+    volumes:
+     - /var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_DEFAULT_EMAIL}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_DEFAULT_PASSWORD}
+      - PGADMIN_LISTEN_PORT=${PGADMIN_LISTEN_PORT}
+    ports:
+      - "${PGADMIN_HOST_PORT}:${PGADMIN_LISTEN_PORT}"
+    depends_on:
+      - db-dev
