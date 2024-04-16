@@ -12,26 +12,17 @@ in alembic/versions folder.
 from sqlmodel import SQLModel
 
 
-from .country import Country
-from .address import Address
-
-from .user import (
-    UserInDB,
-    UserBase,
-    UserLogin,
-    UserRegistration,
-    UserResponse,
-    TempUserInDB,
+from .account import (
+    AccountInDB,
+    TempAccountInDB,
+    AccountLogin,
+    AccountRegistration,
 )
 
 __all__ = [
     "SQLModel",
-    "Address",
-    "Country",
-    "UserInDB",
-    "UserBase",
-    "UserLogin",
-    "UserRegistration",
-    "UserResponse",
-    "TempUserInDB",
+    "AccountInDB",
+    "TempAccountInDB",
+    "AccountLogin",
+    "AccountRegistration",
 ]

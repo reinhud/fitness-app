@@ -1,7 +1,7 @@
-from fastapi import APIRouter, Depends, status
+'''from fastapi import APIRouter, Depends, status
 from typing import Annotated
 from src.models import UserInDB, UserBase
-from src.services.domain.user import get_current_active_user
+from services.domain.account import get_current_active_user
 
 user_router = APIRouter()
 
@@ -29,4 +29,4 @@ async def read_users_me(
         - Current user data (status code 200).
 
     """
-    return UserBase(username=current_user.email)
+    return UserBase(username=current_user.email)'''

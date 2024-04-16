@@ -27,18 +27,22 @@ export default async function onLoginUserAction(previousState: FormState, data: 
     }
 
     try {
-        // Send POST request to example API endpoint (JSONPlaceholder)
-        const res = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const requestFormData = new FormData();
+        requestFormData.append('username', formData.email);
+        requestFormData.append('password', formData.password);
+        console.log('Logging in:', requestFormData);
 
+        const res = await fetch(`http://fitness-app-backend-dev:8000/auth/login`, {
+            method: 'POST',
+            body: requestFormData,
+        });
+        console.log('res:', res);
         if (!res.ok) {
             console.log('Failed to log in:', res.status, res.statusText);
             throw new Error('Failed to log in');
         }
 
-        // Parse response JSON
-        const responseData = await res.json();
-
-        console.log('Logged in:', responseData);
+        console.log('Logged in:', await res.json());
 
 
     } catch (error) {

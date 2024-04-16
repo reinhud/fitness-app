@@ -32,6 +32,7 @@ export default function RegistrationForm() {
         resolver: zodResolver(registrationFormSchema),
         defaultValues: {
             username: "",
+            email: "",
             password: "",
             confirmPassword: "",
             ...(state.fields ?? {})
@@ -44,7 +45,7 @@ export default function RegistrationForm() {
         <CardWrapper
         label="Create an account"
         title="Register"
-        backButtonHref="/auth/login"
+        backButtonHref="/login"
         backButtonLabel="Already have an account? Login here."
         >
             <Form {...form}>
@@ -54,14 +55,26 @@ export default function RegistrationForm() {
                     action={formAction} 
                     onSubmit={form.handleSubmit(() => formRef.current?.submit())} 
                     
-                >
+                >   
                     <FormField
                         control={form.control}
                         name="username"
                         render={({ field }) => (
                             <FormItem>
                                     <FormControl>
-                                        <Input placeholder="Email"  {...field} />
+                                        <Input placeholder="Username" type="text" {...field} />
+                                    </FormControl>
+                                <FormMessage />
+                            </FormItem>
+                        )}
+                    />
+                    <FormField
+                        control={form.control}
+                        name="email"
+                        render={({ field }) => (
+                            <FormItem>
+                                    <FormControl>
+                                        <Input placeholder="Email" type="email"  {...field} />
                                     </FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -93,7 +106,7 @@ export default function RegistrationForm() {
                     />
                     <SubmitButton>Submit</SubmitButton>
                 </form>
-                {state?.message && !state.issues && <p className="text-blue-500">{state.message}</p>}
+                {state?.message && !state.issues && <p className="text-red-500">{state.message}</p>}
                 {state.issues && <ul className="text-red-500">
                     {state.issues.map((issue, index) => <li key={index}>{issue}</li>)}
                 </ul>}

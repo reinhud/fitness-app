@@ -6,6 +6,10 @@ from src.core.settings.settings import get_settings
 # Allow requests to the backend from these origins
 origins = [
     f"http://{get_settings().networking.FRONTEND_HOST_URL}:{get_settings().networking.FRONTEND_HOST_PORT}",
+    "http://localhost:3000",
+    "http://localhost",
+    "http://localhost:8000",
+    "localhost:8000",
 ]
 
 

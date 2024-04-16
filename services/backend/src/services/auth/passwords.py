@@ -1,9 +1,9 @@
-from passlib.context import CryptContext
+import bcrypt
 
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+from src.core.logging import logger
 
 
-async def verify_password(plain_password: str, hashed_password: str) -> bool:
+async def verify_password(plain_password: str, hashed_password: bytes) -> bool:
     """Verify a password against a hashed password.
 
     Parameters
@@ -19,10 +19,19 @@ async def verify_password(plain_password: str, hashed_password: str) -> bool:
     bool
         True if the password matches the hash, False otherwise.
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    try:
+        password_byte_enc = plain_password.encode("utf-8")
+        password_correct = bcrypt.checkpw(
+            password=password_byte_enc, hashed_password=hashed_password
+        )
+        logger.info(f"Password correct: {password_correct}")
+        return password_correct
+    except Exception as e:
+        logger.error(f"Error verifying password: {e}")
+        return False
 
 
-async def get_password_hash(plain_password: str) -> str:
+async def get_password_hash(plain_password: str) -> bytes:
     """Hash a password.
 
     Parameters
@@ -35,4 +44,7 @@ async def get_password_hash(plain_password: str) -> str:
     str
         The hashed password.
     """
-    return pwd_context.hash(plain_password)
+    pwd_bytes = plain_password.encode("utf-8")
+    salt = bcrypt.gensalt()
+    hashed_password = bcrypt.hashpw(password=pwd_bytes, salt=salt)
+    return hashed_password

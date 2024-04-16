@@ -1,6 +1,6 @@
 import pytest
 from sqlalchemy.ext.asyncio import create_async_engine
-from core.settings.settings import get_settings
+from src.core.settings.settings import get_settings
 from alembic.config import Config
 from tests.tests_utils.db_utils import tmp_postgres_database
 

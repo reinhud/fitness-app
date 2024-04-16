@@ -27,20 +27,21 @@ export default async function onRegisterUserAction(previousState: FormState, dat
     }
 
     try {
-        // Send POST request to example API endpoint (JSONPlaceholder)
-        const res = await fetch('https://jsonplaceholder.typicode.com/posts');
+        const requestFormData = new FormData();
+        requestFormData.append('username', formData.email);
+        requestFormData.append('password', formData.password);
+        requestFormData.append('name', formData.username);
+
+
+        const res = await fetch(`http://fitness-app-backend-dev:8000/auth/register`, {
+            method: 'POST',
+            body: requestFormData
+        });
 
         if (!res.ok) {
             console.log('Failed to register:', res.status, res.statusText);
             throw new Error('Failed to register');
         }
-
-        // Parse response JSON
-        const responseData = await res.json();
-
-        console.log('Signed up:', responseData);
-
-
     } catch (error) {
         console.error('Error signing up:', error);
         return {

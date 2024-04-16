@@ -2,14 +2,14 @@ from src.core.logging import logger
 from src.core.settings.settings import get_settings
 from pathlib import Path
 from src.services.email.email_sender import email_sender
-from src.models import UserInDB
+from src.models import AccountInDB
 
 
-async def send_password_reset_email(user: UserInDB, token: str) -> None:
-    """Send a password reset email to the user."""
+async def send_password_reset_email(account: AccountInDB, token: str) -> None:
+    """Send a password reset email to the account."""
     # Add token to the reset link
     link = (
-        f"{get_settings().environment.PROTOCOL}://{get_settings().networking.BACKEND_HOST_URL}:"
+        f"{get_settings().environment.PROTOCOL}://localhost:"
         f"{get_settings().networking.BACKEND_HOST_PORT}/auth/reset-password?token={token}"
     )
 
@@ -27,11 +27,11 @@ async def send_password_reset_email(user: UserInDB, token: str) -> None:
         html_template = file.read()
 
     # Customize the HTML email body with user-specific information
-    body = html_template.replace("{USER}", str(user.first_name)).replace(
+    body = html_template.replace("{USER}", str(account.username)).replace(
         "{RESET_LINK}", link
     )
 
     # Send the email using the provided EmailSender instance
-    await email_sender.send_email(sender_email, user.email, subject, body)
+    await email_sender.send_email(sender_email, account.email, subject, body)
 
     logger.success("Password reset email sent successfully!")

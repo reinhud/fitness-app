@@ -14,7 +14,7 @@ class EnvironmentSettings(BaseSettings):
     @property
     def ECHO_SQL(self) -> bool:
         """Return whether SQL queries should be echoed."""
-        return self.ENVIRONMENT == "development"
+        return False  # self.ENVIRONMENT == "development"
 
     @property
     def LOG_LEVEL(self) -> LOG_LEVEL:

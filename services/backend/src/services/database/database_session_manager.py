@@ -10,6 +10,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
+
+from src.core.settings.settings import get_settings
 from src.core.logging import logger
 
 # Heavily inspired by https://praciano.com.br/fastapi-and-async-sqlalchemy-20-with-pytest-done-right.html
@@ -50,6 +52,7 @@ class DatabaseSessionManager:
         self._engine = create_async_engine(
             url=database_url,
             pool_pre_ping=True,
+            echo=get_settings().environment.ECHO_SQL,
             connect_args=engine_kwargs,
         )
         self._sessionmaker = async_sessionmaker(
@@ -83,7 +86,8 @@ class DatabaseSessionManager:
         async with self._engine.begin() as connection:
             try:
                 yield connection
-            except Exception:
+            except Exception as e:
+                logger.error(f"An error occurred in the connection context: {e}")
                 await connection.rollback()
                 raise
 
@@ -95,7 +99,8 @@ class DatabaseSessionManager:
         async with self._sessionmaker() as session:
             try:
                 yield session
-            except Exception:
+            except Exception as e:
+                logger.error(f"An error occurred in the session context: {e}")
                 await session.rollback()
                 raise
 

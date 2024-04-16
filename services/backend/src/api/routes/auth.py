@@ -1,21 +1,32 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Depends,
+    Form,
+    HTTPException,
+    Request,
+    Response,
+    status,
+)
+from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 
 from src.core.logging import logger
+from src.models import (
+    AccountInDB,
+    AccountRegistration,
+    TempAccountInDB,
+)
 from src.services.auth.passwords import get_password_hash
-
-from src.models import TempUserInDB, UserInDB, UserRegistration
 from src.services.auth.token import access_token, reset_token
-
 from src.services.database.database_session_manager import get_db_session
-from src.services.domain.user import (
-    authenticate_user,
-    get_current_active_user,
-    get_user_by_email,
-    register_user,
-    validate_user_registration,
+from src.services.domain.account import (
+    authenticate_account,
+    get_account_by_email,
+    get_current_active_account,
+    register_account,
+    validate_account_registration,
 )
 from src.services.email.templates.password_reset.password_reset import (
     send_password_reset_email,
@@ -56,9 +67,9 @@ async def login_for_access_token(
         - If the provided username or password is incorrect.
     """
 
-    # Authenticate user
+    # Authenticate account
     try:
-        user: UserInDB = await authenticate_user(
+        account: AccountInDB = await authenticate_account(
             form_data.username, form_data.password, db
         )
     except Exception:
@@ -67,13 +78,13 @@ async def login_for_access_token(
             detail="Incorrect username or password",
         )
 
-    # Create an access token
-    user_access_token = await access_token.create(subject=user.email)
+    # Create an access token with the email as the subject
+    account_access_token = await access_token.create(subject=account.email)
 
     # Set the access token as a cookie
     response.set_cookie(
         key="access_token",
-        value=f"Bearer {user_access_token}",
+        value=f"Bearer {account_access_token}",
         httponly=True,
     )
 
@@ -87,15 +98,16 @@ async def login_for_access_token(
 )
 async def register(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
+    name: Annotated[str, Form()],
     db=Depends(get_db_session),
 ):
     """
-    Endpoint to register a new user.
+    Endpoint to register a new account.
 
     Parameters
     ----------
-    *user_data* : UserRegistrationModel: \\
-        User registration data containing username and password.
+    *account_data* : AccountRegistrationModel: \\
+        account registration data containing username and password.
 
     Returns
     -------
@@ -105,22 +117,23 @@ async def register(
     Raises
     ------
     *HTTPException* \\
-        If the user already exists (status code 400).
+        If the account already exists (status code 400).
     """
-    # Create a new temporary user
-    temp_user: TempUserInDB = await register_user(
-        UserRegistration(
-            username=form_data.username,
+    # Create a new temporary account
+    temp_account: TempAccountInDB = await register_account(
+        AccountRegistration(
+            email=form_data.username,
             password=form_data.password,
+            name=name,
         ),
         db,
     )
 
     # Create an access token
-    user_access_token = await access_token.create(subject=temp_user.email)
+    account_access_token = await access_token.create(subject=temp_account.email)
 
     # Send registration email
-    await send_registration_email(temp_user, user_access_token)
+    await send_registration_email(temp_account, account_access_token)
 
     return {"message": "Registration email sent"}
 
@@ -135,17 +148,22 @@ async def validate_registration(
     token: str,
     db=Depends(get_db_session),
 ):
-    # Check if token is valid and get user
-    new_user = await validate_user_registration(token, db)
+    logger.info(f"Validating registration token: {token}")
+    # Check if token is valid and get account
+    new_account = await validate_account_registration(token, db)
 
     # Set the access token as a cookie
-    user_access_token = await access_token.create(subject=new_user.email)
+    account_access_token = await access_token.create(subject=new_account.email)
 
     response.set_cookie(
         key="access_token",
-        value=f"Bearer {user_access_token}",
+        value=f"Bearer {account_access_token}",
         httponly=True,
     )
+
+    # Redirect to React frontend login page
+    redirect_url = "http://localhost:3000/login"
+    return RedirectResponse(redirect_url)
 
 
 @auth_router.post(
@@ -157,18 +175,18 @@ async def request_forgot_password(
     requested_email: str,
     db=Depends(get_db_session),
 ):
-    # Check if user exists
-    user = await get_user_by_email(requested_email, db)
-    if not user:
+    # Check if account exists
+    account = await get_account_by_email(requested_email, db)
+    if not account:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User not found",
+            detail="account not found",
         )
 
-    user_reset_token = await reset_token.create(subject=requested_email)
+    account_reset_token = await reset_token.create(subject=requested_email)
 
     # Send password reset email
-    await send_password_reset_email(user, user_reset_token)
+    await send_password_reset_email(account, account_reset_token)
 
     return {"message": "Password reset email sent"}
 
@@ -179,12 +197,12 @@ async def request_forgot_password(
     status_code=status.HTTP_200_OK,
 )
 async def request_reset_password(
-    current_active_user: Annotated[UserInDB, Depends(get_current_active_user)],
+    current_active_account: Annotated[AccountInDB, Depends(get_current_active_account)],
 ):
-    user_reset_token = await reset_token.create(subject=current_active_user.email)
+    account_reset_token = await reset_token.create(subject=current_active_account.email)
 
     # Send password reset email
-    await send_password_reset_email(current_active_user, user_reset_token)
+    await send_password_reset_email(current_active_account, account_reset_token)
 
     return {"message": "Password reset email sent"}
 
@@ -200,7 +218,7 @@ async def verify_reset_password(
 ):
     # Extract username from token and verify
     username = await reset_token.get_subject(token)
-    logger.info(f"Reset token verified for user: {username}")
+    logger.info(f"Reset token verified for account: {username}")
 
     # Set the access token as a cookie
     response.set_cookie(
@@ -237,19 +255,19 @@ async def reset_password(
     # Delete cookie
     response.delete_cookie(key="reset_token")
 
-    # Get user from db
-    user = await get_user_by_email(username, db)
-    if not user:
+    # Get account from db
+    account = await get_account_by_email(username, db)
+    if not account:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="User not found",
+            detail="account not found",
         )
 
-    # Create user password
+    # Create account password
     new_hashed_password = await get_password_hash(new_password)
 
-    # Update user
-    user.hashed_password = new_hashed_password
+    # Update account
+    account.hashed_password = new_hashed_password
     await db.commit()
 
     return {"message": "Password updated"}

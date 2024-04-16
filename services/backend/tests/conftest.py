@@ -5,7 +5,7 @@ from httpx import AsyncClient
 import nest_asyncio
 import pytest
 from asyncio import AbstractEventLoop, get_event_loop_policy
-from core.settings.settings import get_settings
+from src.core.settings.settings import get_settings
 from tests.tests_utils.db_utils import tmp_postgres_database
 from alembic.command import revision, stamp, upgrade
 from alembic.config import Config

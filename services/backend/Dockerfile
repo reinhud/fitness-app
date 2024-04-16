@@ -74,6 +74,8 @@ COPY pyproject.toml ./
 RUN --mount=type=cache,target=/root/.cache \
     poetry install
 
+EXPOSE 8000
+
 
 #==============================================================================#
 #============================== Production Image ==============================#

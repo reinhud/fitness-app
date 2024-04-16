@@ -31,7 +31,7 @@ export default function LoginForm() {
     const form = useForm<z.infer<typeof loginFormSchema>>({
         resolver: zodResolver(loginFormSchema),
         defaultValues: {
-            username: "",
+            email: "",
             password: "",
             ...(state.fields ?? {})
         },
@@ -43,7 +43,7 @@ export default function LoginForm() {
         <CardWrapper
         label="Login to your account"
         title="Login"
-        backButtonHref="/auth/register"
+        backButtonHref="/register"
         backButtonLabel="Don't have an account? Register here."
         >
             <Form {...form}>
@@ -56,7 +56,7 @@ export default function LoginForm() {
                 >
                     <FormField
                         control={form.control}
-                        name="username"
+                        name="email"
                         render={({ field }) => (
                             <FormItem>
                                     <FormControl>
