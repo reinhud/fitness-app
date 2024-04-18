@@ -7,19 +7,6 @@ from src.core.settings.settings import get_settings
 
 
 class Token:
-    """A class to manage JWT tokens.
-
-    Attributes
-    ----------
-    algorithm : str
-        The algorithm to use for encoding and decoding the token.
-
-    key : str
-        The key to use for encoding and decoding the token.
-
-    expires_delta : timedelta
-        The expiration time delta for the token.
-    """
 
     def __init__(self, algorithm: str, key: str, expires_delta: timedelta):
         self.algorithm = algorithm
@@ -27,18 +14,6 @@ class Token:
         self.expires_delta = expires_delta
 
     async def create(self, subject: str):
-        """Create a JWT token with the provided data.
-
-        Parameters
-        ----------
-        subject : str
-            The content of the token.
-
-        Returns
-        -------
-        str
-            The encoded access token.
-        """
         expire = datetime.now(UTC) + self.expires_delta
         try:
             to_encode = {"exp": expire, "nbf": datetime.now(), "sub": subject}
@@ -53,18 +28,6 @@ class Token:
         return encoded_jwt
 
     async def get_subject(self, token: str):
-        """Get the content of a JWT token.
-
-        Parameters
-        ----------
-        token : str
-            The encoded token.
-
-        Returns
-        -------
-        dict
-            The content of the token.
-        """
         try:
             decoded_token = jwt.decode(
                 token,

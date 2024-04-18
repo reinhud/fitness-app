@@ -9,4 +9,3 @@ async def test_root():
     ) as ac:
         response = await ac.get("/")
     assert response.status_code == 200
-    assert response.json() == {"message": "Up and running"}

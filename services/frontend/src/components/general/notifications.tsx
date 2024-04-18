@@ -18,7 +18,7 @@ export default function Notifications() {
             <DialogTrigger className="">
                 <Icon
                     icon="ic:round-notifications"
-                    className="text-xl text-gray-600 cursor-pointer"
+                    className="text-xl text-muted-foreground cursor-pointer"
                     onClick={() => {}}
                 />
             </DialogTrigger>

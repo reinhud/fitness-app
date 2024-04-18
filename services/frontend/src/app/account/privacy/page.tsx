@@ -1,7 +1,7 @@
 'use client';
 
-import AccountButtonWithDescription from '@/components/account/accountButtonWithDescription';
-import AccountHeader from '@/components/account/accountHeader';
+import ButtonWithDescription from '@/components/general/buttons/buttonWithDescription';
+import InfoMessage from '@/components/general/messages/infoMessage';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -13,39 +13,27 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Icon } from "@iconify/react";
+import AccountHeader from '../_components/accountHeader';
 
 export default function DataAndPrivacy() {
     return (
-        <div className="min-h-screen bg-gray-100">
-            <AccountHeader title="Data and Privacy" />
-            
-            <div className="pl-4 pr-4">
-                {/* Privacy Section */}
-                <h2 className="font-semibold mb-2">Manage your privacy</h2>
-                <div className="flex items-center w-full bg-blue-200 rounded-md p-4 shadow-md">
-                    <span className="text-blue-500 text-2xl mr-4">
-                        <Icon icon="mdi:information-outline" />
-                    </span>
-                    <p className="text-sm text-gray-600">
-                        Currently, we do not collect any usage data from you.
-                        We do not use cookies or any other tracking technologies.
-                        We do not share any data with third parties.
-                    </p>
-                </div>
-
-
+        <>
+            <AccountHeader title="Data and Privacy" />    
+            <main>
+                <InfoMessage 
+                message='We take your privacy seriously. We do not collect any usage data from you. We do not use cookies or any other tracking technologies. We do not share any data with third parties.'
+                />
                 {/* Data Section */}
                 <h2 className="font-semibold mt-8 mb-2">Manage your data</h2>
                 <div className='space-y-4'>
-                    <AccountButtonWithDescription 
+                    <ButtonWithDescription 
                         title="Download your data"
                         icon="material-symbols:download"
                         description="Download a copy of your data to keep it safe or use it with other services."
                     />
                     <AlertDialog>
-                        <AlertDialogTrigger>
-                            <AccountButtonWithDescription 
+                        <AlertDialogTrigger className=''>
+                            <ButtonWithDescription 
                                 title="Delete your data"
                                 icon="material-symbols:delete"
                                 description="Ask us to delete your data. To do this, we will
@@ -54,24 +42,22 @@ export default function DataAndPrivacy() {
                         </AlertDialogTrigger>
                         <AlertDialogContent className="max-w-md w-[90%] rounded-md">
                             <AlertDialogHeader>
-                                <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-                                <AlertDialogDescription>
+                                <AlertDialogTitle className="mb-4 text-start">Are you absolutely sure?</AlertDialogTitle>
+                                <AlertDialogDescription className="text-start">
                                     This action cannot be undone. This will permanently delete your account
                                     and remove your data from our servers.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
-                                <AlertDialogCancel >Cancel</AlertDialogCancel>
-                                <AlertDialogAction className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded w-full">Continue</AlertDialogAction>
+                                <AlertDialogCancel className='font-bold'>Cancel</AlertDialogCancel>
+                                <AlertDialogAction className="bg-destructive-500 hover:bg-destructive-700 font-bold py-2 px-4 rounded w-full">
+                                    Continue
+                                </AlertDialogAction>
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
-                </div>
-                
-            </div>
-            
-            
-
-        </div>
+                </div>          
+            </main>
+        </>
     );
 }

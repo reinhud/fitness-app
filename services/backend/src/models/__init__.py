@@ -11,18 +11,24 @@ in alembic/versions folder.
 
 from sqlmodel import SQLModel
 
-
-from .account import (
-    AccountInDB,
-    TempAccountInDB,
-    AccountLogin,
-    AccountRegistration,
+from .user.domain import TempUserInDB, UserInDB
+from .user.requests import (
+    EmailResetRequest,
+    ForgotPasswordRequest,
+    ForgotPasswordResetRequest,
+    LoginRequest,
+    PasswordResetRequest,
+    RegistrationRequest,
 )
 
 __all__ = [
     "SQLModel",
-    "AccountInDB",
-    "TempAccountInDB",
-    "AccountLogin",
-    "AccountRegistration",
+    "UserInDB",
+    "TempUserInDB",
+    "EmailResetRequest",
+    "ForgotPasswordRequest",
+    "ForgotPasswordResetRequest",
+    "LoginRequest",
+    "PasswordResetRequest",
+    "RegistrationRequest",
 ]

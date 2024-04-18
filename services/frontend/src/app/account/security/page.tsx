@@ -1,6 +1,8 @@
 'use client';
 
-import AccountHeader from '@/components/account/accountHeader';
+import FormSubmitButton from "@/components/general/buttons/formSubmitButton";
+import IconButton from "@/components/general/buttons/iconButton";
+import { PasswordInput } from "@/components/general/forms/passwordInput";
 import {
     Dialog,
     DialogContent,
@@ -9,66 +11,114 @@ import {
     DialogTitle,
     DialogTrigger
 } from "@/components/ui/dialog";
-import { Icon } from "@iconify/react";
+import {
+    Form,
+    FormControl,
+    FormField,
+    FormItem,
+    FormMessage
+} from "@/components/ui/form";
+import { Label } from "@/components/ui/label";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useRef } from 'react';
+import { useFormState } from 'react-dom';
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import AccountHeader from '../_components/accountHeader';
+import onUpdatePasswordAction from './_actions/onUpdatePasswordAction';
+import { updatePasswordFormSchema } from "./_types/updatePasswordFormSchema";
 
 export default function LoginAndSecurity() {
+
+    const [state, formAction] = useFormState(onUpdatePasswordAction, {
+        message: ""
+    })
+
+    const form = useForm<z.infer<typeof updatePasswordFormSchema>>({
+        resolver: zodResolver(updatePasswordFormSchema),
+        defaultValues: {
+            currentPassword: "",
+            password: "",
+            confirmPassword: "",
+            ...(state.fields ?? {})
+        },
+    })
+
+    const formRef = useRef<HTMLFormElement>(null);
+
     return (
-        <div className="min-h-screen bg-gray-100">
+        <>
             <AccountHeader title={"Login & Security"} />
-            <div className="pl-4 pr-4">
+            <main>
                 <Dialog>
-                    <DialogTrigger className="flex items-center justify-start w-full bg-white text-blue-500 text-sm font-medium pl-4 pr-4 pt-2 pb-2  rounded hover:bg-gray-200 shadow-md">
-                        <Icon icon="mdi:password-add" className="mr-2" />
-                        <span>Change Password</span>
+                    <DialogTrigger className="w-full shadow-md">
+                        <IconButton
+                            iconName="mdi:password-add"
+                            title="Update Password"
+                            onClick={() => {}}
+                        />
                     </DialogTrigger>
                     <DialogContent className="max-w-md w-[90%] rounded-md mt-4">
-                        <DialogHeader className="mb-4">
-                            <DialogTitle className="text-xl font-semibold">Change Password</DialogTitle>
-                            <DialogDescription className="text-sm text-gray-600">Change your password to keep your account secure.</DialogDescription>
+                        <DialogHeader className="mb-4 text-start">
+                            <DialogTitle>Update Password</DialogTitle>
                         </DialogHeader>
-                        <form className="space-y-4">
-                            <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">
-                                    Current Password
-                                </label>
-                                <input
-                                    type="password"
-                                    className="w-full border-gray-300 border rounded-md p-2"
-                                    placeholder="Enter current password"
+                        <DialogDescription className="text-sm text-muted-foreground">
+                            We will send you a confirmation email. After you confirm, 
+                            your password will be updated.
+                        </DialogDescription>
+                        <Form {...form}>
+                            <form
+                                className="space-y-6"
+                                ref={formRef}
+                                action={formAction}
+                                onSubmit={form.handleSubmit(() => formRef.current?.submit())}
+
+                            >
+                                <FormField
+                                    control={form.control}
+                                    name="currentPassword"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>Current Password</Label>
+                                            <FormControl>
+                                                <PasswordInput placeholder="" {...field} />                             
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
-                            <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">
-                                    New Password
-                                </label>
-                                <input
-                                    type="password"
-                                    className="w-full border-gray-300 border rounded-md p-2"
-                                    placeholder="Enter new password"
+                                <FormField
+                                    control={form.control}
+                                    name="password"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>New Password</Label>
+                                            <FormControl>
+                                                <PasswordInput placeholder="" {...field} />                             
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
-                            <div>
-                                <label className="block text-gray-700 text-sm font-bold mb-2">
-                                    Confirm New Password
-                                </label>
-                                <input
-                                    type="password"
-                                    className="w-full border-gray-300 border rounded-md p-2"
-                                    placeholder="Confirm new password"
+                                <FormField
+                                    control={form.control}
+                                    name="confirmPassword"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <Label>Confirm Password</Label>
+                                            <FormControl>
+                                                <PasswordInput placeholder="" {...field} />                             
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
                                 />
-                            </div>
-                            <div className="flex justify-end">
-                                <button
-                                    type="submit"
-                                    className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
-                        </form>
+                                <FormSubmitButton title="Update" />  
+                            </form>
+                        </Form>
                     </DialogContent>
                 </Dialog>
-            </div>
-        </div>
+            </main>
+        </>
     );
 }

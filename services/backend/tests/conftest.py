@@ -1,24 +1,24 @@
+from asyncio import AbstractEventLoop, get_event_loop_policy
 from contextlib import ExitStack
-from typing import AsyncGenerator, Generator
-from fastapi import FastAPI
-from httpx import AsyncClient
+from pathlib import Path
+from typing import AsyncGenerator
+
 import nest_asyncio
 import pytest
-from asyncio import AbstractEventLoop, get_event_loop_policy
-from src.core.settings.settings import get_settings
-from tests.tests_utils.db_utils import tmp_postgres_database
+from fastapi import FastAPI
+from httpx import AsyncClient
+from pytest_asyncio import is_async_test
+
 from alembic.command import revision, stamp, upgrade
 from alembic.config import Config
 from src.core.logging import logger
-from pathlib import Path
+from src.core.settings.settings import get_settings
+from src.main import app as actual_app
 from src.services.database.database_session_manager import (
     database_session_manager,
     get_db_session,
 )
-from src.main import app as actual_app
-
-from pytest_asyncio import is_async_test
-
+from tests.tests_utils.db_utils import tmp_postgres_database
 
 # ==============================================================================#
 # ================================ General Stuff ===============================#
@@ -43,7 +43,7 @@ nest_asyncio.apply()
 
 # TODO: this will be deprecuated, but it works. fix in future
 @pytest.fixture(scope="session")
-def event_loop() -> Generator[AbstractEventLoop, None, None]:
+async def event_loop() -> AsyncGenerator[AbstractEventLoop, None]:
     loop = get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
@@ -52,7 +52,7 @@ def event_loop() -> Generator[AbstractEventLoop, None, None]:
 # ==============================================================================#
 # =============================== Database Stuff ===============================#
 # ==============================================================================#
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 async def migrated_postgres_test_db():
     """
     Creates empty temporary database.
@@ -75,25 +75,25 @@ async def migrated_postgres_test_db():
         logger.info(
             f"Migrations applied in temporary database {get_settings().database.DATABASE_URL}."
         )
+        try:
+            yield tmp_url
+        finally:
+            # Clean alembic # TODO: Fix this to downgrade correctly
+            # latest_revision = alembic_config.latest_revision()
+            # downgrade(alembic_config, to_revision=latest_revision)
 
-        yield tmp_url
+            migrations_dir = Path("alembic/versions")
+            files_to_remove = [
+                filename
+                for filename in migrations_dir.iterdir()
+                if "revision_before_test" in filename.name
+            ]
 
-        # Clean alembic # TODO: Fix this to downgrade correctly
-        # latest_revision = alembic_config.latest_revision()
-        # downgrade(alembic_config, to_revision=latest_revision)
-
-        migrations_dir = Path("alembic/versions")
-        files_to_remove = [
-            filename
-            for filename in migrations_dir.iterdir()
-            if "revision_before_test" in filename.name
-        ]
-
-        for file_to_remove in files_to_remove:
-            file_to_remove.unlink()
+            for file_to_remove in files_to_remove:
+                file_to_remove.unlink()
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 async def test_database_session_manager(migrated_postgres_test_db):
     await database_session_manager.init(database_url=migrated_postgres_test_db)
     logger.info(
@@ -104,10 +104,12 @@ async def test_database_session_manager(migrated_postgres_test_db):
     logger.info(f"Test DB closed connection to database {migrated_postgres_test_db}.")
 
 
-@pytest.fixture()
+@pytest.fixture(scope="function")
 async def test_session(test_database_session_manager):
     async with test_database_session_manager.session() as session:
         yield session
+
+        await session.rollback()
 
 
 # ==============================================================================#

@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from src.core.settings.settings import get_settings
 
 # Allow requests to the backend from these origins
+# TODO: make more specific
 origins = [
     f"http://{get_settings().networking.FRONTEND_HOST_URL}:{get_settings().networking.FRONTEND_HOST_PORT}",
     "http://localhost:3000",

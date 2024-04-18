@@ -1,7 +1,7 @@
 'use client';
 
-import AccountHeader from '@/components/account/accountHeader';
-import SubmitButton from '@/components/auth/buttons/submitButton';
+import FormSubmitButton from '@/components/general/buttons/formSubmitButton';
+import InfoMessage from '@/components/general/messages/infoMessage';
 import {
     Form,
     FormControl,
@@ -13,9 +13,9 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { toast } from "@/components/ui/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Icon } from "@iconify/react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import AccountHeader from '../_components/accountHeader';
 
 const FormSchema = z.object({
     accountUpdates: z.boolean().default(false).optional(),
@@ -42,9 +42,9 @@ export default function NotificationPreferences() {
         })
         }
     return (
-        <div className="min-h-screen bg-gray-100">
+        <>
             <AccountHeader title="Notification Preferences" />
-            <div className='pl-4 pr-4'>
+            <main>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="w-full space-y-6">
                     <div>
@@ -53,7 +53,7 @@ export default function NotificationPreferences() {
                             control={form.control}
                             name="accountUpdates"
                             render={({ field }) => (
-                            <FormItem className="bg-white flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                 <div className="space-y-0.5">
                                 <FormLabel>Account updates</FormLabel>
                                 <FormDescription>
@@ -64,7 +64,7 @@ export default function NotificationPreferences() {
                                 <Switch
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
-                                    className="data-[state=checked]:bg-blue-500" 
+                                    className="data-[state=unchecked]:bg-accent-200 data-[state=checked]:bg-accent-800" 
                                 />
                                 </FormControl>
                             </FormItem>
@@ -74,7 +74,7 @@ export default function NotificationPreferences() {
                             control={form.control}
                             name="marketing"
                             render={({ field }) => (
-                            <FormItem className="bg-white flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
                                 <div className="space-y-0.5">
                                 <FormLabel>Marketing</FormLabel>
                                 <FormDescription>
@@ -85,7 +85,7 @@ export default function NotificationPreferences() {
                                 <Switch
                                     checked={field.value}
                                     onCheckedChange={field.onChange}
-                                    className="data-[state=checked]:bg-blue-500" 
+                                    className="data-[state=unchecked]:bg-accent-200 data-[state=checked]:bg-accent-800" 
                                     disabled
                                     aria-readonly
                                 />
@@ -95,19 +95,11 @@ export default function NotificationPreferences() {
                         />
                         </div>
                     </div>
-                    <div className="flex items-center w-full bg-blue-200 rounded-md p-4 shadow-md">
-                        <span className="text-blue-500 text-2xl mr-4">
-                            <Icon icon="mdi:information-outline" />
-                        </span>
-                        <p className="text-sm text-gray-600">
-                        You can change your preferences anytime.
-                        </p>
-                    </div>
-                    <SubmitButton>Save Changes</SubmitButton>
+                    <InfoMessage message="You can change your preferences anytime." />
+                    <FormSubmitButton title='Save Changes' />
                     </form>
                 </Form>
-            </div>
-            
-        </div>
+            </main>           
+        </>
     );
 }

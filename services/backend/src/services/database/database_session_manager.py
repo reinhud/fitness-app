@@ -1,6 +1,7 @@
 from contextlib import asynccontextmanager
 from typing import Any, AsyncIterator
 
+from fastapi import HTTPException
 from sqlalchemy.engine.url import URL as SQLAlchemyURL
 from sqlalchemy.ext.asyncio import (
     AsyncConnection,
@@ -10,9 +11,8 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 
-
-from src.core.settings.settings import get_settings
 from src.core.logging import logger
+from src.core.settings.settings import get_settings
 
 # Heavily inspired by https://praciano.com.br/fastapi-and-async-sqlalchemy-20-with-pytest-done-right.html
 
@@ -82,7 +82,10 @@ class DatabaseSessionManager:
     async def connect(self) -> AsyncIterator[AsyncConnection]:
         """Connect to the database."""
         if self._engine is None:
-            raise IOError("DatabaseSessionManager is not initialized")
+            raise HTTPException(
+                status_code=500,
+                detail="DatabaseSessionManager engine is not initialized",
+            )
         async with self._engine.begin() as connection:
             try:
                 yield connection
@@ -95,7 +98,10 @@ class DatabaseSessionManager:
     async def session(self) -> AsyncIterator[AsyncSession]:
         """Create a new session."""
         if self._sessionmaker is None:
-            raise IOError("DatabaseSessionManager is not initialized")
+            raise HTTPException(
+                status_code=500,
+                detail="DatabaseSessionManager session is not initialized",
+            )
         async with self._sessionmaker() as session:
             try:
                 yield session
@@ -103,6 +109,8 @@ class DatabaseSessionManager:
                 logger.error(f"An error occurred in the session context: {e}")
                 await session.rollback()
                 raise
+            finally:
+                await session.close()
 
 
 # Singleton instance used throughout the application lifecycle

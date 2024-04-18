@@ -10,3 +10,7 @@ class NetworkingSettings(BaseSettings):
     FRONTEND_HOST_URL: str = "localhost"
     SMTP_PORT: int = 587
     SMTP_SERVER: str = "smtp.gmail.com"
+
+    @property
+    def FRONTENT_URL(self) -> str:
+        return f"http://{self.FRONTEND_HOST_URL}:{self.FRONTEND_HOST_PORT}"

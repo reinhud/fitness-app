@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
 from fastapi import FastAPI
+
 from src.core.settings.settings import get_settings
 from src.services.database.database_session_manager import database_session_manager
 
@@ -9,7 +10,6 @@ from src.services.database.database_session_manager import database_session_mana
 @asynccontextmanager
 async def lifespan(app: FastAPI) -> AsyncIterator[None]:
     """Function that handles startup and shutdown events.
-
 
     To understand more, read https://fastapi.tiangolo.com/advanced/events/
     In this case, the startup event is used to initialize the database session manager

@@ -43,6 +43,7 @@ async def healthcheck():
 
 if __name__ == "__main__":
     # Run the FastAPI application
+    # This is the entry point for the application
     uvicorn.run(
         "main:app",
         host=get_settings().networking.BACKEND_HOST_URL,
