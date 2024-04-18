@@ -11,12 +11,17 @@ import {
 } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
 import { useRouter } from "next/navigation";
+import onUserLogoutAction from "./_actions/onUserLogoutAction";
 import AccountCard from "./_components/accountCard";
 import AccountHeader from "./_components/accountHeader";
 import CloseAccountButton from "./_components/closeAccountButton";
 
 
 export default function Account() {
+
+    const handleUserLogout = async () => {
+        await onUserLogoutAction();
+    }
 
     const router = useRouter();
     return (
@@ -116,7 +121,7 @@ export default function Account() {
                     <IconButton
                         iconName="mdi:logout"
                         title="Log Out"
-                        onClick={() => {}}
+                        onClick={handleUserLogout}
                     />
                 </div>
                 

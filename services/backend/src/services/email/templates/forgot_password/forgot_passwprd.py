@@ -11,7 +11,7 @@ async def send_forgot_password_email(user: UserInDB, token: str) -> None:
     # Add token to the reset link
     link = (
         f"{get_settings().environment.PROTOCOL}://localhost:"
-        f"{get_settings().networking.BACKEND_HOST_PORT}/auth/validate-forgot-password?token={token}"
+        f"{get_settings().networking.BACKEND_HOST_PORT}/user/validate-forgot-password?token={token}"
     )
 
     sender_email = get_settings().email.SMTP_USERNAME

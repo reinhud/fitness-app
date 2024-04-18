@@ -37,7 +37,10 @@ async def login_for_access_token_route(
     response.set_cookie(
         key="access_token",
         value=f"Bearer {user_access_token}",
-        httponly=True,
+        # httponly=True,
+        # secure=True,
+        secure=True,
+        samesite="none",
     )
 
     return {"message": "Login successful"}

@@ -11,7 +11,7 @@ class UserInDBBase(SQLModel):
     """
 
     id: int = Field(primary_key=True, default=None)
-    username: str = Field(unique=True, max_length=15)
+    username: str = Field(max_length=15)
     # TODO: add email validation, EmailStr is no sqlalchemy type
     email: str = Field(unique=True, max_length=100)
     hashed_password: bytes

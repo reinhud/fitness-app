@@ -29,8 +29,14 @@ class Token:
 
     async def get_subject(self, token: str):
         try:
+            # Remove the "Bearer " prefix if it exists
+            if token.startswith("Bearer "):
+                cleaned_token = token.replace("Bearer ", "").strip()
+            else:
+                cleaned_token = token
+
             decoded_token = jwt.decode(
-                token,
+                cleaned_token,
                 key=self.key,
                 algorithms=[self.algorithm],
             )

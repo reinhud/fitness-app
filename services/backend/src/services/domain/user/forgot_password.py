@@ -18,7 +18,7 @@ async def forgot_password(
     db: AsyncSession,
 ) -> UserInDB:
     # Check that emails are same
-    if forgot_password_request.email != forgot_password_request.verify_email:
+    if forgot_password_request.email != forgot_password_request.confirm_email:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Emails do not match",
@@ -52,8 +52,11 @@ async def reset_forgot_password(
         forgot_password_reset_request.new_password
     )
 
+    logger.debug(f"Resetting password for user: '{current_active_user}'")
     # Check if temp user exists
     temp_user = await get_temp_user_by_email(current_active_user.email, db)
+
+    logger.debug(f"Temp user: {temp_user}")
 
     if temp_user:
         # Update the temp user with the new password

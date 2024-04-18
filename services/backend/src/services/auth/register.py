@@ -11,7 +11,7 @@ from src.services.domain.user.get_user import get_temp_user_by_email, get_user_b
 async def register_user(
     new_user: RegistrationRequest, db: AsyncSession
 ) -> TempUserInDB:
-    logger.info(f"user registration attempt: '{new_user.username}'")
+    logger.info(f"User registration attempt: '{new_user.username}'")
 
     # Check for existing user
     user = await get_user_by_email(new_user.email, db)

@@ -49,7 +49,7 @@ class ForgotPasswordRequest(SQLModel):
     """
 
     email: str
-    verify_email: str
+    confirm_email: str
 
 
 class ForgotPasswordResetRequest(SQLModel):

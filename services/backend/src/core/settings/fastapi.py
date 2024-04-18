@@ -15,7 +15,7 @@ class FastAPISettings(BaseSettings):
             "description": "Routes related to user authentication.",
         },
         {
-            "name": "users",
+            "name": "user",
             "description": "Routes related to users.",
         },
     ]

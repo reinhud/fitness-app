@@ -9,7 +9,7 @@ me_router = APIRouter()
 
 
 @me_router.get(
-    "/user",
+    "/me",
     name="User: Me",
     status_code=status.HTTP_200_OK,
     response_model=UserInDB,

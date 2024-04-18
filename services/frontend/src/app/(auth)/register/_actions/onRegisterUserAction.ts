@@ -40,9 +40,13 @@ export default async function onRegisterUserAction(previousState: FormState, dat
         });
 
         if (!res.ok) {
-            console.log('Failed to register:', res.status, res.statusText);
-            throw new Error('Failed to register');
+            const data = await res.json();
+            console.log('Failed to register:', data.detail);
+            return {
+                message: data.detail || "Failed to register",
+            };
         }
+
     } catch (error) {
         console.error('Error signing up:', error);
         return {
@@ -50,6 +54,6 @@ export default async function onRegisterUserAction(previousState: FormState, dat
         }
     }
 
-    redirect("/");
+    redirect("/register/confirmation");
 
 }

@@ -1,7 +1,7 @@
 "use server"
 
 import { redirect } from "next/navigation";
-import { loginFormSchema } from "../_types/loginFormSchema";
+import { forgotPasswordFormSchema } from "../_types/forgotPasswordFormSchema";
 
 
 export type FormState = {
@@ -10,10 +10,10 @@ export type FormState = {
     issues?: string[];
 }
 
-export default async function onLoginUserAction(previousState: FormState, data: FormData): Promise<FormState> {
+export default async function onForgotPasswordAction(previousState: FormState, data: FormData): Promise<FormState> {
 
     const formData = Object.fromEntries(data);
-    const parsed = loginFormSchema.safeParse(formData);
+    const parsed = forgotPasswordFormSchema.safeParse(formData);
 
     if (!parsed.success) {
         const fields: Record<string, string> = {};
@@ -29,32 +29,28 @@ export default async function onLoginUserAction(previousState: FormState, data: 
 
     try {
         const requestFormData = new FormData();
-        requestFormData.append('username', formData.email);
-        requestFormData.append('password', formData.password);
+        requestFormData.append('email', formData.email);
+        requestFormData.append('confirm_email', formData.confirmEmail);
 
-        const res = await fetch(`http://fitness-app-backend-dev:8000/auth/login`, {
+        const res = await fetch(`http://fitness-app-backend-dev:8000/user/forgot-password`, {
             method: 'POST',
             body: requestFormData,
-            credentials: 'include',
-            headers: {
-                'Access-Control-Allow-Origin': '*', 
-            },
         });
 
         if (!res.ok) {
             const data = await res.json();
-            console.log('Failed to log in:', data.detail);
+            console.log('Failed to trigger forgot password:', data.detail);
             return {
-                message: data.detail || "Failed to log in",
+                message: data.detail || "Failed to trigger forgot password",
             };
         }
 
     } catch (error) {
-        console.error('Error logging in:', error);
+        console.error('Error trigger forgot password:', error);
         return {
-            message: (error as Error).message || "An error occurred while logging in",
+            message: (error as Error).message || "An error occurred while trigger forgot password",
         };
     }
 
-    redirect("/");
+    redirect("/forgot-password/confirmation");
 }

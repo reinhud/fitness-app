@@ -1,8 +1,18 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, HTTPException, Request, Response, status
+from fastapi import (
+    APIRouter,
+    Cookie,
+    Depends,
+    Form,
+    HTTPException,
+    Request,
+    Response,
+    status,
+)
 from fastapi.responses import RedirectResponse
 
+from src.core.logging import logger
 from src.core.settings.settings import get_settings
 from src.models import ForgotPasswordRequest, ForgotPasswordResetRequest
 from src.services.auth.token import reset_token
@@ -30,13 +40,13 @@ forgot_password_router = APIRouter()
 )
 async def forgot_password_route(
     email: Annotated[str, Form()],
-    verify_email: Annotated[str, Form()],
+    confirm_email: Annotated[str, Form()],
     db=Depends(get_db_session),
 ):
     user = await forgot_password(
         ForgotPasswordRequest(
             email=email,
-            verify_email=verify_email,
+            confirm_email=confirm_email,
         ),
         db,
     )
@@ -56,9 +66,12 @@ async def forgot_password_route(
     status_code=status.HTTP_200_OK,
 )
 async def validate_forgot_password_route(
-    response: Response,
     token: str,
 ):
+    # Redirect to React frontend forgot password page
+    redirect_url = f"{get_settings().networking.FRONTENT_URL}/reset-forgot-password"
+    response = RedirectResponse(redirect_url)
+
     # Try get the user from the reset token
     try:
         await reset_token.get_subject(token)
@@ -71,11 +84,10 @@ async def validate_forgot_password_route(
         key="reset_token",
         value=f"Bearer {token}",
         httponly=True,
+        secure=True,
     )
 
-    # Redirect to React frontend forgot password page
-    redirect_url = f"{get_settings().networking.FRONTENT_URL}/forgot-password"
-    return RedirectResponse(redirect_url)
+    return response
 
 
 @forgot_password_router.post(
@@ -89,8 +101,8 @@ async def reset_forgot_password_route(
     confirm_password: Annotated[str, Form()],
     db=Depends(get_db_session),
 ):
-    # Get user from token
-    token = request.cookies.get("reset_token")
+    token = request.cookies.get("reset_token", None)
+
     if not token:
         raise HTTPException(status_code=400, detail="Invalid token")
     try:

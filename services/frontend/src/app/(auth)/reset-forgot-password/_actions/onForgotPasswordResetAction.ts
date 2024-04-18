@@ -1,7 +1,7 @@
 "use server"
 
 import { redirect } from "next/navigation";
-import { loginFormSchema } from "../_types/loginFormSchema";
+import { forgotPasswordResetFormSchema } from "../_types/forgotPasswordResetFormSchema";
 
 
 export type FormState = {
@@ -10,10 +10,10 @@ export type FormState = {
     issues?: string[];
 }
 
-export default async function onLoginUserAction(previousState: FormState, data: FormData): Promise<FormState> {
+export default async function onForgotPasswordResetAction(previousState: FormState, data: FormData): Promise<FormState> {
 
     const formData = Object.fromEntries(data);
-    const parsed = loginFormSchema.safeParse(formData);
+    const parsed = forgotPasswordResetFormSchema.safeParse(formData);
 
     if (!parsed.success) {
         const fields: Record<string, string> = {};
@@ -29,32 +29,29 @@ export default async function onLoginUserAction(previousState: FormState, data: 
 
     try {
         const requestFormData = new FormData();
-        requestFormData.append('username', formData.email);
-        requestFormData.append('password', formData.password);
+        requestFormData.append('new_password', formData.newPassword);
+        requestFormData.append('confirm_password', formData.confirmPassword);
 
-        const res = await fetch(`http://fitness-app-backend-dev:8000/auth/login`, {
+        const res = await fetch(`http://fitness-app-backend-dev:8000/user/reset-forgot-password`, {
             method: 'POST',
             body: requestFormData,
             credentials: 'include',
-            headers: {
-                'Access-Control-Allow-Origin': '*', 
-            },
         });
 
         if (!res.ok) {
             const data = await res.json();
-            console.log('Failed to log in:', data.detail);
+            console.log('Failed to reset forgot password:', data.detail);
             return {
-                message: data.detail || "Failed to log in",
+                message: data.detail || "Failed to reset forgot password",
             };
         }
 
     } catch (error) {
-        console.error('Error logging in:', error);
+        console.error('Error reset forgot password:', error);
         return {
-            message: (error as Error).message || "An error occurred while logging in",
+            message: (error as Error).message || "An error occurred while reset forgot password",
         };
     }
 
-    redirect("/");
+    redirect("/forgot-password/confirmation");
 }

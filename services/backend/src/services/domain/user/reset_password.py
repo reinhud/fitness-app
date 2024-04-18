@@ -28,6 +28,13 @@ async def reset_password(
             detail="Passwords do not match",
         )
 
+    # Check that the new password is not the same as the current password
+    if password_reset_request.new_password == password_reset_request.current_password:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="New password cannot be the same as the current password",
+        )
+
     # Hash the new password
     new_hashed_password = await get_password_hash(password_reset_request.new_password)
 

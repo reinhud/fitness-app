@@ -8,7 +8,6 @@ import IconButton from "@/components/general/buttons/iconButton";
 import CardWrapper from "@/components/general/cards/cardWrapper";
 import { PasswordInput } from "@/components/general/forms/passwordInput";
 import AlertMessage from "@/components/general/messages/alertMessage";
-import InfoMessage from "@/components/general/messages/infoMessage";
 import { Button } from "@/components/ui/button";
 import {
     Form,
@@ -90,7 +89,7 @@ export default function Login() {
                     <FormSubmitButton title="Login" />
                 </form>
                 <div className="mt-2">
-                    {state?.message && !state.issues && <InfoMessage message={state.message} />}
+                    {state?.message && !state.issues && <AlertMessage message={state.message} />}
                     {state.issues && 
                         <AlertMessage message={
                             <ul>
@@ -102,7 +101,7 @@ export default function Login() {
             </Form>  
 
             <Button variant="link" className="text-sm p-2 w-full" asChild>
-                <Link href="/account/forgot-password">
+                <Link href="/forgot-password">
                     Forgot Password?
                 </Link>
             </Button>

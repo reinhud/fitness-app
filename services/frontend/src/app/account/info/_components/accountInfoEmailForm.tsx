@@ -16,7 +16,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { updateEmailFormSchema } from "@/types/account/accountFormSchemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Icon } from "@iconify/react";
 import { useRef } from "react";
@@ -24,6 +23,7 @@ import { useFormState } from "react-dom";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import onUpdateEmailAction from "../_actions/onUpdateEmailAction";
+import { updateEmailFormSchema } from "../_types/updateEmailFormSchema";
 
 export default function AccountInfoEmailForm() {
     const [state, formAction] = useFormState(onUpdateEmailAction, {

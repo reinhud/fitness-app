@@ -17,4 +17,5 @@ async def logout(response: Response):
 
     # Redirect to React frontend login page
     redirect_url = get_settings().networking.FRONTENT_URL
-    return RedirectResponse(redirect_url)
+    # return RedirectResponse(redirect_url)
+    return {"message": "Logout successful"}
